@@ -1,0 +1,98 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int main() {
+    // Dataset hardcoded con 31 números reales (n >= 30)
+    vector<double> datos = {
+        25.5, 28.0, 30.2, 32.1, 33.0, 34.5, 35.0, 37.2, 38.9, 40.0,
+        41.5, 43.0, 44.2, 45.0, 46.8, 48.0, 50.1, 52.0, 53.5, 55.0,
+        56.2, 57.8, 59.0, 61.2, 63.0, 65.5, 67.0, 68.9, 70.5, 74.0, 78.0
+    };
+
+    int n = datos.size();
+
+    // Ordenar los datos para obtener mínimo y máximo
+    sort(datos.begin(), datos.end());
+    double min_val = datos[0];
+    double max_val = datos[n - 1];
+
+    int k = 6; // Número de clases
+    double rango = max_val - min_val;
+    double amplitud = rango / k;
+
+    vector<double> limite_inf(k);
+    vector<double> limite_sup(k);
+    vector<int> f(k, 0);          // Frecuencia absoluta
+    vector<double> xc(k);         // Punto medio (marca de clase)
+    vector<int> Fa(k);            // Frecuencia absoluta acumulada
+    vector<double> fr(k);         // Frecuencia relativa
+    vector<double> fra(k);        // Frecuencia relativa acumulada
+    vector<double> porcentaje(k); // Porcentaje
+
+    double inf = min_val;
+    for (int i = 0; i < k; ++i) {
+        limite_inf[i] = inf;
+        limite_sup[i] = inf + amplitud;
+        inf = limite_sup[i];
+        xc[i] = (limite_inf[i] + limite_sup[i]) / 2.0;
+    }
+
+    // Cálculo de la Frecuencia Absoluta (f)
+    for (double val : datos) {
+        for (int i = 0; i < k; ++i) {
+            if (i == k - 1) {
+                if (val >= limite_inf[i] && val <= limite_sup[i]) { f[i]++; break; }
+            } else {
+                if (val >= limite_inf[i] && val < limite_sup[i]) { f[i]++; break; }
+            }
+        }
+    }
+
+    // Cálculos de acumuladas y relativas
+    int acum_f = 0;
+    double acum_fr = 0.0;
+    for (int i = 0; i < k; ++i) {
+        acum_f += f[i];
+        Fa[i] = acum_f;
+        fr[i] = (double)f[i] / n;
+        acum_fr += fr[i];
+        fra[i] = acum_fr;
+        porcentaje[i] = fr[i] * 100.0;
+    }
+
+    // Imprimir Tabla de Frecuencias Extendida
+    cout << "=========================================================================================\n";
+    cout << "                       ESTADISTICA: TABLA DE FRECUENCIA EXTENDIDA                          \n";
+    cout << "=========================================================================================\n";
+    cout << setw(6) << "Clase" 
+         << setw(20) << "Limite de clase" 
+         << setw(10) << "f" 
+         << setw(10) << "xc" 
+         << setw(10) << "Fa" 
+         << setw(10) << "fr" 
+         << setw(10) << "fra" 
+         << setw(12) << "Porcentaje" << "\n";
+    cout << "-----------------------------------------------------------------------------------------\n";
+
+    for (int i = 0; i < k; ++i) {
+        string lim_str = "[" + to_string((int)limite_inf[i]) + " - " + to_string((int)limite_sup[i]) + "]";
+        cout << setw(6) << (i + 1)
+             << setw(20) << lim_str
+             << setw(10) << f[i]
+             << setw(10) << fixed << setprecision(1) << xc[i]
+             << setw(10) << Fa[i]
+             << setw(10) << fixed << setprecision(2) << fr[i]
+             << setw(10) << fixed << setprecision(2) << fra[i]
+             << setw(11) << fixed << setprecision(2) << porcentaje[i] << "%\n";
+    }
+    cout << "-----------------------------------------------------------------------------------------\n";
+    cout << "TOTAL" << setw(21) << " " << setw(10) << n << setw(40) << "1.00" << setw(13) << "100%\n";
+    cout << "=========================================================================================\n";
+
+    return 0;
+}
